@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Human Firewall</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: white;
+  display: flex;
+  justify-content: center;
+}
+.container {
+  width: 500px;
+  margin-top: 40px;
+}
+textarea {
+  width: 100%;
+  height: 140px;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+}
+select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+}
+.result {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 6px;
+}
+.safe { background: #166534; }
+.risky { background: #92400e; }
+.danger { background: #7f1d1d; }
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h2>🛡 Human Firewall</h2>
+  <p>Check before you trust.</p>
+
+  <select id="type">
+    <option value="message">Message</option>
+    <option value="link">Link</option>
+    <option value="terms">Terms & Conditions</option>
+  </select>
+
+  <textarea id="content" placeholder="Paste content here..."></textarea>
+
+  <button onclick="analyze()">Check Risk</button>
+
+  <div id="output"></div>
+</div>
+
+<script>
+async function analyze() {
+  const content = document.getElementById("content").value;
+  const type = document.getElementById("type").value;
+
+  const res = await fetch("http://localhost:8000/analyze", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type, content })
+  });
+
+  const data = await res.json();
+
+  let color = "safe";
+  if (data.verdict === "RISKY") color = "risky";
+  if (data.verdict === "DANGEROUS") color = "danger";
+
+  document.getElementById("output").innerHTML = `
+    <div class="result ${color}">
+      <h3>${data.verdict}</h3>
+      <p><b>Confidence:</b> ${Math.round(data.confidence * 100)}%</p>
+      <ul>${data.reasons.map(r => `<li>${r}</li>`).join("")}</ul>
+      <p><b>Recommendation:</b> ${data.recommendation}</p>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>

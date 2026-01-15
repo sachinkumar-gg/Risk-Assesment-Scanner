@@ -1,0 +1,31 @@
+# Python virtual environments
+venv/
+.env
+.env.*
+.env/
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Node (if frontend tooling added later)
+node_modules/
+
+# Build / dist
+build/
+dist/
+
+# FastAPI / Uvicorn
+*.pid
