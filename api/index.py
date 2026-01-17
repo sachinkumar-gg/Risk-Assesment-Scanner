@@ -39,7 +39,7 @@ def extract_json(text: str):
         raise ValueError("No JSON found")
     return json.loads(match.group())
 
-@app.post("/api/analyze")
+@app.post("/analyze")
 def analyze(req: AnalyzeRequest):
     prompt = f"""
 You are a cybersecurity decision engine.
