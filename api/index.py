@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import google.generativeai as genai
 import os, json, re
@@ -10,6 +12,16 @@ if not API_KEY:
 genai.configure(api_key=API_KEY)
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 🔥 Serve frontend
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
 
 class AnalyzeRequest(BaseModel):
     type: str
