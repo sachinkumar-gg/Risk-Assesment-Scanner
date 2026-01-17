@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import google.generativeai as genai
-import os
-import json
-import re
+import os, json, re
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 app = FastAPI()
 
@@ -16,17 +18,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 🔥 SERVE FRONTEND (THIS FIXES 404 /)
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
+# ✅ Serve static assets only (css, png)
+app.mount("/static", StaticFiles(directory=BASE_DIR), name="static")
 
 # ---- API KEY ----
 API_KEY = os.getenv("GOOGLE_API_KEY")
+MODEL = None
 
 if API_KEY:
     genai.configure(api_key=API_KEY)
     MODEL = genai.GenerativeModel("gemini-2.5-flash-lite")
-else:
-    MODEL = None
 
 class AnalyzeRequest(BaseModel):
     type: str
@@ -34,17 +35,19 @@ class AnalyzeRequest(BaseModel):
 
 def extract_json(text: str):
     match = re.search(r"\{.*\}", text, re.DOTALL)
-    if not match:
-        raise ValueError("No JSON found")
     return json.loads(match.group())
 
+# ✅ FRONTEND ENTRY (SAFE)
+@app.get("/")
+def serve_index():
+    return FileResponse(BASE_DIR / "index.html")
+
+# ✅ BACKEND HEALTH
 @app.get("/health")
 def health():
-    return {
-        "status": "ok",
-        "api_key_loaded": bool(API_KEY)
-    }
+    return {"status": "ok"}
 
+# ✅ ANALYSIS
 @app.post("/analyze")
 def analyze(req: AnalyzeRequest):
     if not MODEL:
@@ -78,14 +81,4 @@ CONTENT:
 """
 
     response = MODEL.generate_content(prompt)
-    raw_text = response.text.strip()
-
-    try:
-        return extract_json(raw_text)
-    except Exception:
-        return {
-            "verdict": "RISKY",
-            "confidence": 0.5,
-            "reasons": ["AI output parsing error"],
-            "recommendation": "Proceed with caution"
-        }
+    return extract_json(response.text)
