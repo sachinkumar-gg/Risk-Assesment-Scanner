@@ -66,42 +66,38 @@
 
 <!-- 🚀 FINAL JS -->
 <script>
-document.querySelector(".analyze-btn").addEventListener("click", async () => {
-  const type = document.getElementById("contentType").value;
-  const content = document.getElementById("contentBox").value;
+   document.querySelector(".analyze-btn").addEventListener("click", async () => {
+      const type = document.getElementById("contentType").value;
+      const content = document.getElementById("contentBox").value;
 
-  if (!content.trim()) return;
+      if (!content.trim()) return;
 
-  try {
-    const res = await fetch("/api/analyze", {
+      try {
+        const res = await fetch("/api/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ type, content })
+        });
+
+        const data = await res.json();
+
+        document.getElementById("resultPanel").classList.remove("hidden");
+
+        const pct = Math.round(data.confidence * 100);
+        document.getElementById("riskPercent").innerText = pct + "%";
+        document.getElementById("riskFill").style.width = pct + "%";
+
+        document.getElementById("reasonsList").innerHTML =
+          data.reasons.map(r => `<li>${r}</li>`).join("");
+
+        document.getElementById("recommendationText").innerText =
+          data.recommendation;
+
+      } catch (e) {
+        alert("Backend not reachable");
+        console.error(e);
+      }
     });
-
-    const data = await res.json();
-
-    // Reveal right panel
-    document.getElementById("resultPanel").classList.remove("hidden");
-
-    // Risk %
-    const pct = Math.round(data.confidence * 100);
-    document.getElementById("riskPercent").textContent = pct + "%";
-    document.getElementById("riskFill").style.width = pct + "%";
-
-    // Reasons
-    document.getElementById("reasonsList").innerHTML =
-      data.reasons.map(r => `<li>${r}</li>`).join("");
-
-    // Recommendation
-    document.getElementById("recommendationText").textContent =
-      data.recommendation;
-
-  } catch (err) {
-    console.error(err);
-    alert("Backend not reachable — start FastAPI with: uvicorn main:app --reload");
-  }
-});
 </script>
 
 </body>
