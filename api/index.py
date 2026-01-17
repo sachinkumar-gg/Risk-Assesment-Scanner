@@ -1,14 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from dotenv import load_dotenv
 import google.generativeai as genai
-import os
-import json
-import re
+import os, json, re
 
-load_dotenv()
-
+# 🔑 API KEY
 API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 if not API_KEY:
     raise RuntimeError("API key not found")
@@ -31,18 +27,18 @@ class AnalyzeRequest(BaseModel):
 MODEL = genai.GenerativeModel("gemini-2.5-flash-lite")
 
 def extract_json(text: str):
-    """
-    Extract JSON object from Gemini response safely
-    """
     match = re.search(r"\{.*\}", text, re.DOTALL)
     if not match:
         raise ValueError("No JSON found")
     return json.loads(match.group())
 
-@app.post("/analyze")
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+@app.post("/analyze")   # ❗ NO /api here
 def analyze(req: AnalyzeRequest):
-    prompt = f"""
-You are a cybersecurity decision engine.
+    prompt = f"""You are a cybersecurity decision engine.
 
 RULES:
 - Output ONLY valid JSON
@@ -62,17 +58,5 @@ CONTENT TYPE: {req.type}
 CONTENT:
 \"\"\"{req.content}\"\"\"
 """
-
     response = MODEL.generate_content(prompt)
-    raw_text = response.text.strip()
-
-    try:
-        return extract_json(raw_text)
-    except Exception as e:
-        print("RAW GEMINI OUTPUT:", raw_text)
-        return {
-            "verdict": "RISKY",
-            "confidence": 0.5,
-            "reasons": ["AI output format error"],
-            "recommendation": "Proceed with caution"
-        }
+    return extract_json(response.text)
