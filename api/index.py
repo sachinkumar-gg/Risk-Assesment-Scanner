@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import google.generativeai as genai
 import os
@@ -15,6 +16,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 🔥 SERVE FRONTEND (THIS FIXES 404 /)
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
 # ---- API KEY ----
 API_KEY = os.getenv("GOOGLE_API_KEY")
 
@@ -24,19 +28,16 @@ if API_KEY:
 else:
     MODEL = None
 
-# ---- REQUEST MODEL ----
 class AnalyzeRequest(BaseModel):
     type: str
     content: str
 
-# ---- HELPERS ----
 def extract_json(text: str):
     match = re.search(r"\{.*\}", text, re.DOTALL)
     if not match:
         raise ValueError("No JSON found")
     return json.loads(match.group())
 
-# ---- HEALTH CHECK ----
 @app.get("/health")
 def health():
     return {
@@ -44,7 +45,6 @@ def health():
         "api_key_loaded": bool(API_KEY)
     }
 
-# ---- ANALYSIS ENDPOINT ----
 @app.post("/analyze")
 def analyze(req: AnalyzeRequest):
     if not MODEL:
