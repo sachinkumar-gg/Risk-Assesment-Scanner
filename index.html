@@ -73,10 +73,10 @@ document.querySelector(".analyze-btn").addEventListener("click", async () => {
   if (!content.trim()) return;
 
   try {
-    const res = await fetch("http://127.0.0.1:8000/analyze", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ type, content })
+    const res = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type, content })
     });
 
     const data = await res.json();
