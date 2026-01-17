@@ -1,47 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Human Firewall</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>SEQR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <div class="background"></div>
+  <!-- Background Locks -->
+  <div class="lock-background"></div>
 
-  <div class="page">
+  <div class="page-wrapper">
 
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">SEQR</div>
+      <div class="tagline">Because one click is all it takes</div>
+    </header>
+
+    <!-- Main Card -->
     <div class="main-card">
 
-      <!-- LEFT PANEL -->
+      <!-- LEFT -->
       <div class="left-panel">
-        <div class="brand">
-          <img src="humanfirewall-removebg-preview.png" class="logo" alt="Logo">
-          <div>
-            <div class="title">Human Firewall</div>
-            <div class="subtitle">Check before you trust.</div>
-          </div>
-        </div>
-
-        <select>
+        <label class="label">Content Type</label>
+        <select id="contentType">
           <option>Message</option>
           <option>Link</option>
           <option>Terms & Conditions</option>
         </select>
 
-        <textarea placeholder="Paste suspicious content here..."></textarea>
+        <label class="label">Paste Content</label>
+        <textarea id="contentBox" placeholder="Paste suspicious content here..."></textarea>
 
-        <button>Analyze Risk</button>
+        <button class="analyze-btn">Analyze Risk</button>
       </div>
 
-      <!-- RIGHT PANEL (EMPTY STATE FOR NOW) -->
-      <div class="right-panel empty-state">
-        <div class="msg">No analysis performed yet.</div>
-      </div>
+      <!-- RIGHT -->
+      <div class="right-panel hidden" id="resultPanel">
+        <div class="risk-header">
+          <span>RISK LEVEL</span>
+          <span id="riskPercent">—</span>
+        </div>
 
+        <div class="risk-bar">
+          <div class="risk-fill" id="riskFill"></div>
+        </div>
+
+        <div class="box">
+          <h4>Detected Patterns</h4>
+          <ul id="reasonsList">
+            <li>—</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h4>Recommendation</h4>
+          <p id="recommendationText">—</p>
+        </div>
+      </div>
     </div>
   </div>
+
+<!-- 🚀 FINAL JS -->
+<script>
+document.querySelector(".analyze-btn").addEventListener("click", async () => {
+  const type = document.getElementById("contentType").value;
+  const content = document.getElementById("contentBox").value;
+
+  if (!content.trim()) return;
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/analyze", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ type, content })
+    });
+
+    const data = await res.json();
+
+    // Reveal right panel
+    document.getElementById("resultPanel").classList.remove("hidden");
+
+    // Risk %
+    const pct = Math.round(data.confidence * 100);
+    document.getElementById("riskPercent").textContent = pct + "%";
+    document.getElementById("riskFill").style.width = pct + "%";
+
+    // Reasons
+    document.getElementById("reasonsList").innerHTML =
+      data.reasons.map(r => `<li>${r}</li>`).join("");
+
+    // Recommendation
+    document.getElementById("recommendationText").textContent =
+      data.recommendation;
+
+  } catch (err) {
+    console.error(err);
+    alert("Backend not reachable — start FastAPI with: uvicorn main:app --reload");
+  }
+});
+</script>
 
 </body>
 </html>

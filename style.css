@@ -1,128 +1,175 @@
-:root {
-  --dark-blue: #0b1220;
-  --mid-blue: #0f1e3a;
-  --card-bg: #111827;
-  --track: #1f2937;
-  --grey: #9ca3af;
-  --blue: #3b82f6;
-  --danger: #ef4444;
-}
-
+/* RESET */
 * {
   box-sizing: border-box;
-  font-family: Inter, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 html, body {
-  margin: 0;
   height: 100%;
+  font-family: Inter, system-ui, sans-serif;
 }
 
-/* ORIGINAL CYBER BACKGROUND (REVERTED) */
-.background {
+/* LOCK BG */
+.lock-background {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(135deg, #0b1220 0%, #0f1e3a 50%, #0b1220 100%);
+  background-color: #1f2933;
 }
 
-/* Center app */
-.page {
+.lock-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("lock.png");
+  background-repeat: repeat;
+  background-size: 100px 100px;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+/* PAGE */
+.page-wrapper {
   min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Main 2‑column card */
-.main-card {
-  width: 1000px;
-  max-width: 95%;
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 24px;
-  padding: 28px;
-  border-radius: 16px;
-  backdrop-filter: blur(6px);
-  background: rgba(17, 24, 39, 0.75);
-  border: 1px solid #1f2937;
-}
-
-/* LEFT PANEL */
-.left-panel {
-  display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 24px;
+/* HEADER */
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px 30px;
+  background: linear-gradient(
+    to bottom,
+    rgba(23, 31, 39, 0.95),
+    rgba(31,41,51,0.85),
+    rgba(31,41,51,0.0)
+  );
+  border-radius: 12px;
 }
 
 .logo {
-  height: 64px;
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #ffffff;
 }
 
-.title {
-  font-size: 24px;
-  font-weight: 600;
-  color: white;
+.tagline {
+  margin-top: 8px;
+  font-size: 20px;
+  color: #d1d5db;
 }
 
-.subtitle {
-  font-size: 14px;
-  color: var(--grey);
-}
-
-select, textarea, button {
+/* MAIN CARD */
+.main-card {
   width: 100%;
-  padding: 12px;
-  margin-top: 14px;
-  border-radius: 6px;
-  border: none;
-  font-size: 14px;
+  max-width: 980px;
+  background: rgba(17, 24, 39, 0.92);
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  padding: 28px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.5);
 }
 
-select, textarea {
-  background: var(--track);
-  color: white;
+/* LEFT */
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.label {
+  font-size: 13px;
+  opacity: 0.85;
+  color: #ffffff;
+}
+
+select,
+textarea {
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  padding: 12px;
+  color: #ffffff;
+  font-size: 14px;
 }
 
 textarea {
-  height: 160px;
-  resize: vertical;
+  min-height: 160px;
+  resize: none;
 }
 
-button {
-  margin-top: 18px;
-  background: var(--blue);
+.analyze-btn {
+  margin-top: 10px;
+  padding: 14px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border: none;
+  border-radius: 10px;
   color: white;
   font-weight: 600;
   cursor: pointer;
 }
 
-button:hover {
-  background: #2563eb;
+.analyze-btn:hover {
+  opacity: 0.9;
 }
 
-/* RIGHT PANEL */
+/* RIGHT */
 .right-panel {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  border-radius: 12px;
-  background: var(--card-bg);
-  border: 1px solid var(--track);
-  padding: 18px;
+  gap: 18px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* RISK BAR */
+.risk-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #e5e7eb;
+}
+
+.risk-bar {
+  width: 100%;
+  height: 10px;
+  background: #374151;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.risk-fill {
   height: 100%;
+  width: 0%;
+  background: #dc2626;
+  transition: width 0.5s ease;
+}
+
+/* BOXES */
+.box {
+  background: #020617;
+  border-radius: 12px;
+  padding: 16px;
   color: white;
 }
 
-.right-panel .msg {
-  color: var(--grey);
-  font-size: 14px;
+.box ul {
+  padding-left: 16px;
+}
+
+.box li,
+.box p {
+  font-size: 13px;
+  opacity: 0.9;
+  color: #e5e7eb;
 }
