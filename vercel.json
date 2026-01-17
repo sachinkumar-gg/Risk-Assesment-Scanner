@@ -8,12 +8,12 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
+      "src": "^/api/(.*)$",
       "dest": "api/index.py"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "src": "^/(.*)$",
+      "dest": "index.html"
     }
   ]
 }
